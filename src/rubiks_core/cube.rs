@@ -266,6 +266,10 @@ impl Cube {
         }
         true
     }
+
+    fn is_solved(&self) -> bool {
+        self == &Cube::solved()
+    }
 }
 
 #[cfg(test)]
@@ -326,5 +330,30 @@ mod tests {
             CornerSlot::new(8),
             Err(CubeError::InvalidCornerSlot { value: 8 })
         );
+    }
+
+    #[test]
+    fn solved_cube_is_solved() {
+        assert!(Cube::solved().is_solved());
+    }
+
+    #[test]
+    fn solved_cube_has_no_edge_parity() {
+        assert_eq!(Cube::solved().edge_parity(), 0);
+    }
+
+    #[test]
+    fn solved_cube_has_no_corner_parity() {
+        assert_eq!(Cube::solved().corner_parity(), 0);
+    }
+
+    #[test]
+    fn solved_cube_has_all_different_edges() {
+        assert!(Cube::solved().all_different_edges())
+    }
+
+    #[test]
+    fn solved_cube_has_all_different_corners() {
+        assert!(Cube::solved().all_different_corners())
     }
 }
