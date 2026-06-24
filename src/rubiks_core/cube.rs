@@ -38,10 +38,10 @@ pub enum EdgeCubie {
     BR,
     GR,
     GO,
-    YB,
-    YO,
     YG,
     YR,
+    YB,
+    YO,
 }
 
 impl EdgeCubie {
@@ -122,10 +122,10 @@ pub enum CornerCubie {
     WBR,
     WRG,
     WGO,
-    YRB,
-    YBO,
     YOG,
     YGR,
+    YRB,
+    YBO,
 }
 
 impl CornerCubie {
@@ -284,19 +284,19 @@ impl Cube {
                     orientation: EdgeOrientation::new(0),
                 },
                 EdgePiece {
-                    cubie: EdgeCubie::YB,
-                    orientation: EdgeOrientation::new(0),
-                },
-                EdgePiece {
-                    cubie: EdgeCubie::YO,
-                    orientation: EdgeOrientation::new(0),
-                },
-                EdgePiece {
                     cubie: EdgeCubie::YG,
                     orientation: EdgeOrientation::new(0),
                 },
                 EdgePiece {
                     cubie: EdgeCubie::YR,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::YB,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::YO,
                     orientation: EdgeOrientation::new(0),
                 },
             ],
@@ -318,19 +318,19 @@ impl Cube {
                     orientation: CornerOrientation::new(0),
                 },
                 CornerPiece {
-                    cubie: CornerCubie::YRB,
-                    orientation: CornerOrientation::new(0),
-                },
-                CornerPiece {
-                    cubie: CornerCubie::YBO,
-                    orientation: CornerOrientation::new(0),
-                },
-                CornerPiece {
                     cubie: CornerCubie::YOG,
                     orientation: CornerOrientation::new(0),
                 },
                 CornerPiece {
                     cubie: CornerCubie::YGR,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::YRB,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::YBO,
                     orientation: CornerOrientation::new(0),
                 },
             ],

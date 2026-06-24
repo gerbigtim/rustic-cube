@@ -1,1 +1,3 @@
-mod cube;
+mod camera;
+pub mod cube;
+pub mod scene;
