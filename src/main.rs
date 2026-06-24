@@ -2,5 +2,6 @@ mod rendering;
 mod rubiks_core;
 
 fn main() {
-    println!("Hello, world!");
+    let cube = rubiks_core::Cube::solved();
+    let stickers = rendering::cube::DerivedStickers::from_cube(&cube);
 }

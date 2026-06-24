@@ -18,8 +18,18 @@ enum CubeError {
     InvalidCube,
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum StickerColor {
+    White,
+    Yellow,
+    Blue,
+    Green,
+    Red,
+    Orange,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum EdgeCubie {
+pub enum EdgeCubie {
     WB,
     WR,
     WG,
@@ -34,8 +44,27 @@ enum EdgeCubie {
     YR,
 }
 
+impl EdgeCubie {
+    fn get_sticker_colors(&self) -> [StickerColor; 2] {
+        match *self {
+            Self::WB => [StickerColor::White, StickerColor::Blue],
+            Self::WR => [StickerColor::White, StickerColor::Red],
+            Self::WG => [StickerColor::White, StickerColor::Green],
+            Self::WO => [StickerColor::White, StickerColor::Orange],
+            Self::BO => [StickerColor::Blue, StickerColor::Orange],
+            Self::BR => [StickerColor::Blue, StickerColor::Red],
+            Self::GR => [StickerColor::Green, StickerColor::Red],
+            Self::GO => [StickerColor::Green, StickerColor::Orange],
+            Self::YB => [StickerColor::Yellow, StickerColor::Blue],
+            Self::YO => [StickerColor::Yellow, StickerColor::Orange],
+            Self::YG => [StickerColor::Yellow, StickerColor::Green],
+            Self::YR => [StickerColor::Yellow, StickerColor::Red],
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct EdgeOrientation(u8);
+pub struct EdgeOrientation(u8);
 
 impl EdgeOrientation {
     fn new(value: u8) -> Self {
@@ -47,7 +76,7 @@ impl EdgeOrientation {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct EdgeSlot(u8);
+pub struct EdgeSlot(u8);
 
 impl EdgeSlot {
     fn new(value: u8) -> Result<Self, CubeError> {
@@ -66,13 +95,29 @@ impl EdgeSlot {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct EdgePiece {
+pub struct EdgePiece {
     cubie: EdgeCubie,
     orientation: EdgeOrientation,
 }
 
+impl EdgePiece {
+    pub fn cubie(&self) -> &EdgeCubie {
+        &self.cubie
+    }
+
+    pub fn orientation(&self) -> &EdgeOrientation {
+        &self.orientation
+    }
+
+    pub fn get_sticker_colors(&self) -> [StickerColor; 2] {
+        let mut sticker_colors = self.cubie.get_sticker_colors();
+        sticker_colors.rotate_right(self.orientation.as_u8() as usize);
+        sticker_colors
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum CornerCubie {
+pub enum CornerCubie {
     WOB,
     WBR,
     WRG,
@@ -83,8 +128,56 @@ enum CornerCubie {
     YGR,
 }
 
+impl CornerCubie {
+    #[rustfmt::skip]
+    fn get_sticker_colors(&self) -> [StickerColor; 3] {
+        match *self {
+            Self::WOB => [
+                StickerColor::White,
+                StickerColor::Orange,
+                StickerColor::Blue,
+            ],
+            Self::WBR => [
+                StickerColor::White,
+                StickerColor::Blue,
+                StickerColor::Red
+            ],
+            Self::WRG => [
+                StickerColor::White,
+                StickerColor::Red,
+                StickerColor::Green
+            ],
+            Self::WGO => [
+                StickerColor::White,
+                StickerColor::Green,
+                StickerColor::Orange,
+            ],
+            Self::YRB => [
+                StickerColor::Yellow,
+                StickerColor::Red,
+                StickerColor::Blue
+            ],
+            Self::YBO => [
+                StickerColor::Yellow,
+                StickerColor::Blue,
+                StickerColor::Orange,
+            ],
+            Self::YOG => [
+                StickerColor::Yellow,
+                StickerColor::Orange,
+                StickerColor::Green,
+            ],
+            Self::YGR => [
+                StickerColor::Yellow,
+                StickerColor::Green,
+                StickerColor::Red
+            ],
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct CornerOrientation(u8);
+pub struct CornerOrientation(u8);
 
 impl CornerOrientation {
     fn new(value: u8) -> Self {
@@ -96,7 +189,7 @@ impl CornerOrientation {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct CornerSlot(u8);
+pub struct CornerSlot(u8);
 
 impl CornerSlot {
     fn new(value: u8) -> Result<Self, CubeError> {
@@ -115,13 +208,29 @@ impl CornerSlot {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct CornerPiece {
+pub struct CornerPiece {
     cubie: CornerCubie,
     orientation: CornerOrientation,
 }
 
+impl CornerPiece {
+    pub fn cubie(&self) -> &CornerCubie {
+        &self.cubie
+    }
+
+    pub fn orientation(&self) -> &CornerOrientation {
+        &self.orientation
+    }
+
+    pub fn get_sticker_colors(&self) -> [StickerColor; 3] {
+        let mut sticker_colors = self.cubie.get_sticker_colors();
+        sticker_colors.rotate_right(self.orientation.as_u8() as usize);
+        sticker_colors
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct Cube {
+pub struct Cube {
     corners: [CornerPiece; 8],
     edges: [EdgePiece; 12],
 }
@@ -138,7 +247,8 @@ impl Cube {
         }
         Err(CubeError::InvalidCube)
     }
-    fn solved() -> Self {
+
+    pub fn solved() -> Self {
         Self {
             edges: [
                 EdgePiece {
@@ -225,6 +335,14 @@ impl Cube {
                 },
             ],
         }
+    }
+
+    pub fn corners(&self) -> &[CornerPiece; 8] {
+        &self.corners
+    }
+
+    pub fn edges(&self) -> &[EdgePiece; 12] {
+        &self.edges
     }
 
     fn edge_parity(&self) -> u8 {
