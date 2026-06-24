@@ -11,12 +11,14 @@
 //! orientation two is two clockwise twists (equivalently, one counterclockwise
 //! twist), viewed from outside the cube looking directly at that corner.
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum CubeError {
     InvalidEdgeSlot { value: u8 },
     InvalidCornerSlot { value: u8 },
+    InvalidCube,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum EdgeCubie {
     WB,
     WR,
@@ -63,11 +65,13 @@ impl EdgeSlot {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct EdgePiece {
     cubie: EdgeCubie,
     orientation: EdgeOrientation,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum CornerCubie {
     WOB,
     WBR,
@@ -110,19 +114,29 @@ impl CornerSlot {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct CornerPiece {
     cubie: CornerCubie,
     orientation: CornerOrientation,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 struct Cube {
     corners: [CornerPiece; 8],
     edges: [EdgePiece; 12],
 }
 
 impl Cube {
-    fn new(corners: [CornerPiece; 8], edges: [EdgePiece; 12]) -> Self {
-        Self { corners, edges }
+    fn new(corners: [CornerPiece; 8], edges: [EdgePiece; 12]) -> Result<Self, CubeError> {
+        let cube = Self { corners, edges };
+        if cube.edge_parity() == 0
+            && cube.corner_parity() == 0
+            && cube.all_different_corners()
+            && cube.all_different_edges()
+        {
+            return Ok(cube);
+        }
+        Err(CubeError::InvalidCube)
     }
     fn solved() -> Self {
         Self {
@@ -211,6 +225,46 @@ impl Cube {
                 },
             ],
         }
+    }
+
+    fn edge_parity(&self) -> u8 {
+        let mut edge_parity = 0;
+        for edge in &self.edges {
+            edge_parity = (edge_parity + edge.orientation.as_u8()) % 2;
+        }
+        edge_parity
+    }
+
+    fn corner_parity(&self) -> u8 {
+        let mut corner_parity = 0;
+        for corner in &self.corners {
+            corner_parity = (corner_parity + corner.orientation.as_u8()) % 3;
+        }
+        corner_parity
+    }
+
+    fn all_different_edges(&self) -> bool {
+        let mut seen = Vec::<EdgeCubie>::new();
+        for edge in &self.edges {
+            let cubie = &edge.cubie;
+            if seen.contains(cubie) {
+                return false;
+            }
+            seen.push(*cubie);
+        }
+        true
+    }
+
+    fn all_different_corners(&self) -> bool {
+        let mut seen = Vec::<CornerCubie>::new();
+        for corner in &self.corners {
+            let cubie = &corner.cubie;
+            if seen.contains(cubie) {
+                return false;
+            }
+            seen.push(*cubie);
+        }
+        true
     }
 }
 
