@@ -4,13 +4,19 @@ enum CubeError {
     InvalidCornerSlot { value: u8 },
 }
 
-enum Sticker {
-    White,
-    Yellow,
-    Blue,
-    Green,
-    Orange,
-    Red,
+enum EdgeCubie {
+    WB,
+    WR,
+    WG,
+    WO,
+    BO,
+    BR,
+    GR,
+    GO,
+    YB,
+    YO,
+    YG,
+    YR,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -45,9 +51,19 @@ impl EdgeSlot {
 }
 
 struct EdgePiece {
+    cubie: EdgeCubie,
     orientation: EdgeOrientation,
-    slot: EdgeSlot,
-    stickers: (Sticker, Sticker),
+}
+
+enum CornerCubie {
+    WOB,
+    WBR,
+    WRG,
+    WGO,
+    YRB,
+    YBO,
+    YOG,
+    YGR,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -82,14 +98,104 @@ impl CornerSlot {
 }
 
 struct CornerPiece {
+    cubie: CornerCubie,
     orientation: CornerOrientation,
-    slot: CornerSlot,
-    stickers: (Sticker, Sticker, Sticker),
 }
 
 struct Cube {
     corners: [CornerPiece; 8],
     edges: [EdgePiece; 12],
+}
+
+impl Cube {
+    fn new() -> Self {
+        Self {
+            edges: [
+                EdgePiece {
+                    cubie: EdgeCubie::WB,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::WR,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::WG,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::WO,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::BO,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::BR,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::GR,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::GO,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::YB,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::YO,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::YG,
+                    orientation: EdgeOrientation::new(0),
+                },
+                EdgePiece {
+                    cubie: EdgeCubie::YR,
+                    orientation: EdgeOrientation::new(0),
+                },
+            ],
+            corners: [
+                CornerPiece {
+                    cubie: CornerCubie::WOB,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::WBR,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::WRG,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::WGO,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::YRB,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::YBO,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::YOG,
+                    orientation: CornerOrientation::new(0),
+                },
+                CornerPiece {
+                    cubie: CornerCubie::YGR,
+                    orientation: CornerOrientation::new(0),
+                },
+            ],
+        }
+    }
 }
 
 #[cfg(test)]
