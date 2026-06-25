@@ -400,20 +400,6 @@ impl Cube {
         self == &Cube::solved()
     }
 
-    pub fn move_up(&mut self) {
-        let tmp_corner = self.corners[0];
-        self.corners[0] = self.corners[1];
-        self.corners[1] = self.corners[2];
-        self.corners[2] = self.corners[3];
-        self.corners[3] = tmp_corner;
-
-        let tmp_edge = self.edges[0];
-        self.edges[0] = self.edges[1];
-        self.edges[1] = self.edges[2];
-        self.edges[2] = self.edges[3];
-        self.edges[3] = tmp_edge;
-    }
-
     pub fn move_u(&mut self) {
         let tmp_corner = self.corners[0];
         self.corners[0] = self.corners[3];
@@ -428,26 +414,26 @@ impl Cube {
         self.edges[1] = tmp_edge;
     }
 
+    pub fn move_u_prime(&mut self) {
+        let tmp_corner = self.corners[0];
+        self.corners[0] = self.corners[1];
+        self.corners[1] = self.corners[2];
+        self.corners[2] = self.corners[3];
+        self.corners[3] = tmp_corner;
+
+        let tmp_edge = self.edges[0];
+        self.edges[0] = self.edges[1];
+        self.edges[1] = self.edges[2];
+        self.edges[2] = self.edges[3];
+        self.edges[3] = tmp_edge;
+    }
+
     pub fn move_u2(&mut self) {
         self.corners.swap(0, 2);
         self.corners.swap(1, 3);
 
         self.edges.swap(0, 2);
         self.edges.swap(1, 3);
-    }
-
-    pub fn move_dp(&mut self) {
-        let tmp_corner = self.corners[4];
-        self.corners[4] = self.corners[5];
-        self.corners[5] = self.corners[6];
-        self.corners[6] = self.corners[7];
-        self.corners[7] = tmp_corner;
-
-        let tmp_edge = self.edges[8];
-        self.edges[8] = self.edges[9];
-        self.edges[9] = self.edges[10];
-        self.edges[10] = self.edges[11];
-        self.edges[11] = tmp_edge;
     }
 
     pub fn move_d(&mut self) {
@@ -462,6 +448,20 @@ impl Cube {
         self.edges[11] = self.edges[10];
         self.edges[10] = self.edges[9];
         self.edges[9] = tmp_edge;
+    }
+
+    pub fn move_d_prime(&mut self) {
+        let tmp_corner = self.corners[4];
+        self.corners[4] = self.corners[5];
+        self.corners[5] = self.corners[6];
+        self.corners[6] = self.corners[7];
+        self.corners[7] = tmp_corner;
+
+        let tmp_edge = self.edges[8];
+        self.edges[8] = self.edges[9];
+        self.edges[9] = self.edges[10];
+        self.edges[10] = self.edges[11];
+        self.edges[11] = tmp_edge;
     }
 
     pub fn move_d2(&mut self) {
