@@ -203,15 +203,18 @@ pub fn create_and_print_solved_cube() {
     stickers.print_cube_net();
 }
 
+#[derive(Resource)]
+pub struct CubeState {
+    pub cube: Cube,
+}
+
 pub fn create_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut cube_state: Res<CubeState>,
 ) {
-    let mut cube = Cube::solved();
-    cube.move_d();
-
-    create_3d_cube(&cube, &mut commands, meshes, materials);
+    create_3d_cube(&cube_state.cube, &mut commands, meshes, materials);
 
     commands.spawn((PointLight::default(), Transform::from_xyz(10.0, 10.0, 10.0)));
     commands.spawn((
