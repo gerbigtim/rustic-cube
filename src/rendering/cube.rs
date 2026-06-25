@@ -208,7 +208,8 @@ pub fn create_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let cube = Cube::solved();
+    let mut cube = Cube::solved();
+    cube.move_d();
 
     create_3d_cube(&cube, &mut commands, meshes, materials);
 
@@ -275,42 +276,48 @@ fn facelet_transform(face_idx: usize, sticker_idx: usize) -> Transform {
     let face_offset = 1.5 * sticker_size + 2.0 * sticker_gap + 0.5 * sticker_thickness;
 
     match face_idx {
+        // White
         0 => {
             let x: f32 = (sticker_idx as isize % 3 - 1) as f32 * sticker_spacing;
             let y: f32 = face_offset;
             let z: f32 = (sticker_idx as isize / 3 - 1) as f32 * sticker_spacing;
             Transform::from_xyz(x, y, z)
         }
+        // Yellow
         1 => {
             let x: f32 = (sticker_idx as isize % 3 - 1) as f32 * sticker_spacing;
             let y: f32 = -face_offset;
             let z: f32 = (1 - sticker_idx as isize / 3) as f32 * sticker_spacing;
             Transform::from_xyz(x, y, z)
         }
+        // Blue
         2 => {
             let x: f32 = (sticker_idx as isize % 3 - 1) as f32 * sticker_spacing;
-            let y: f32 = (1 - sticker_idx as isize / 3) as f32 * sticker_spacing;
+            let y: f32 = (sticker_idx as isize / 3 - 1) as f32 * sticker_spacing;
             let z: f32 = -face_offset;
             Transform::from_xyz(x, y, z)
                 .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
         }
+        // Green
         3 => {
             let x: f32 = (sticker_idx as isize % 3 - 1) as f32 * sticker_spacing;
-            let y: f32 = (sticker_idx as isize / 3 - 1) as f32 * sticker_spacing;
+            let y: f32 = (1 - sticker_idx as isize / 3) as f32 * sticker_spacing;
             let z: f32 = face_offset;
             Transform::from_xyz(x, y, z)
                 .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
         }
+        // Red
         4 => {
             let x: f32 = face_offset;
-            let y: f32 = (sticker_idx as isize / 3 - 1) as f32 * sticker_spacing;
+            let y: f32 = (1 - sticker_idx as isize / 3) as f32 * sticker_spacing;
             let z: f32 = (1 - sticker_idx as isize % 3) as f32 * sticker_spacing;
             Transform::from_xyz(x, y, z)
                 .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2))
         }
+        // Orange
         5 => {
             let x: f32 = -face_offset;
-            let y: f32 = (sticker_idx as isize / 3 - 1) as f32 * sticker_spacing;
+            let y: f32 = (1 - sticker_idx as isize / 3) as f32 * sticker_spacing;
             let z: f32 = (sticker_idx as isize % 3 - 1) as f32 * sticker_spacing;
             Transform::from_xyz(x, y, z)
                 .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2))
