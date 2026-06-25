@@ -1,4 +1,13 @@
-use crate::rubiks_core::{CornerPiece, Cube, EdgePiece, StickerColor};
+use bevy::{
+    color::{
+        palettes::css::{BLUE, GREEN, ORANGE, RED, WHITE, YELLOW},
+        Color,
+    },
+    pbr::{MeshMaterial3d, StandardMaterial},
+    prelude::*,
+};
+
+use crate::rubiks_core::{Cube, StickerColor};
 
 pub struct DerivedStickers {
     stickers: [[StickerColor; 9]; 6],
@@ -81,6 +90,7 @@ impl DerivedStickers {
         ];
         Self { stickers }
     }
+
     pub fn print_cube_net(&self) {
         let mut sticker_chars = [['-'; 9]; 6];
         for (face_idx, face) in self.stickers.iter().enumerate() {
@@ -170,5 +180,19 @@ impl DerivedStickers {
             "      {} {} {}      ",
             sticker_chars[2][6], sticker_chars[2][7], sticker_chars[2][8]
         );
+    }
+}
+
+fn sticker_to_material(
+    sticker_color: &StickerColor,
+    materials: &mut Assets<StandardMaterial>,
+) -> MeshMaterial3d<StandardMaterial> {
+    match *sticker_color {
+        StickerColor::White => MeshMaterial3d(materials.add(Color::from(WHITE))),
+        StickerColor::Yellow => MeshMaterial3d(materials.add(Color::from(YELLOW))),
+        StickerColor::Blue => MeshMaterial3d(materials.add(Color::from(BLUE))),
+        StickerColor::Green => MeshMaterial3d(materials.add(Color::from(GREEN))),
+        StickerColor::Red => MeshMaterial3d(materials.add(Color::from(RED))),
+        StickerColor::Orange => MeshMaterial3d(materials.add(Color::from(ORANGE))),
     }
 }
