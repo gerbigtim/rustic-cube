@@ -1,7 +1,7 @@
 use bevy::{
     color::{
-        palettes::css::{BLUE, GREEN, ORANGE, RED, WHITE, YELLOW},
         Color,
+        palettes::css::{BLUE, GREEN, ORANGE, RED, WHITE, YELLOW},
     },
     pbr::{MeshMaterial3d, StandardMaterial},
     prelude::*,
@@ -195,4 +195,10 @@ fn sticker_to_material(
         StickerColor::Red => MeshMaterial3d(materials.add(Color::from(RED))),
         StickerColor::Orange => MeshMaterial3d(materials.add(Color::from(ORANGE))),
     }
+}
+
+pub fn create_and_print_solved_cube() {
+    let cube = Cube::solved();
+    let stickers = DerivedStickers::from_cube(&cube);
+    stickers.print_cube_net();
 }
