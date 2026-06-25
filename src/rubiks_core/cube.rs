@@ -28,6 +28,17 @@ pub enum StickerColor {
     Orange,
 }
 
+impl StickerColor {
+    pub const ALL: [Self; 6] = [
+        Self::White,
+        Self::Yellow,
+        Self::Blue,
+        Self::Green,
+        Self::Red,
+        Self::Orange,
+    ];
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum EdgeCubie {
     WB,
