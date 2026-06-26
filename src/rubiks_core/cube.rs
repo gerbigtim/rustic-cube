@@ -125,6 +125,11 @@ impl EdgePiece {
         sticker_colors.rotate_right(self.orientation.as_u8() as usize);
         sticker_colors
     }
+
+    pub fn with_twist(&mut self, amount: u8) -> Self {
+        self.orientation = EdgeOrientation::new(self.orientation.as_u8() + amount);
+        *self
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -237,6 +242,11 @@ impl CornerPiece {
         let mut sticker_colors = self.cubie.get_sticker_colors();
         sticker_colors.rotate_right(self.orientation.as_u8() as usize);
         sticker_colors
+    }
+
+    pub fn with_twist(&mut self, amount: u8) -> Self {
+        self.orientation = CornerOrientation::new(self.orientation.as_u8() + amount);
+        *self
     }
 }
 
@@ -430,6 +440,9 @@ impl Cube {
             CubeMove::D => self.move_d(),
             CubeMove::DPrime => self.move_d_prime(),
             CubeMove::D2 => self.move_d2(),
+            CubeMove::B => self.move_b(),
+            CubeMove::BPrime => self.move_b_prime(),
+            CubeMove::B2 => self.move_b2(),
             _ => (),
         }
     }
@@ -504,6 +517,42 @@ impl Cube {
 
         self.edges.swap(8, 10);
         self.edges.swap(9, 11);
+    }
+
+    fn move_b(&mut self) {
+        let mut tmp_corner = self.corners[0];
+        self.corners[0] = self.corners[1].with_twist(1);
+        self.corners[1] = self.corners[6].with_twist(2);
+        self.corners[6] = self.corners[7].with_twist(1);
+        self.corners[7] = tmp_corner.with_twist(2);
+
+        let mut tmp_edge = self.edges[0];
+        self.edges[0] = self.edges[5].with_twist(1);
+        self.edges[5] = self.edges[10].with_twist(1);
+        self.edges[10] = self.edges[4].with_twist(1);
+        self.edges[4] = tmp_edge.with_twist(1);
+    }
+
+    fn move_b_prime(&mut self) {
+        let mut tmp_corner = self.corners[0];
+        self.corners[0] = self.corners[7].with_twist(1);
+        self.corners[7] = self.corners[6].with_twist(2);
+        self.corners[6] = self.corners[1].with_twist(1);
+        self.corners[1] = tmp_corner.with_twist(2);
+
+        let mut tmp_edge = self.edges[0];
+        self.edges[0] = self.edges[4].with_twist(1);
+        self.edges[4] = self.edges[10].with_twist(1);
+        self.edges[10] = self.edges[5].with_twist(1);
+        self.edges[5] = tmp_edge.with_twist(1);
+    }
+
+    fn move_b2(&mut self) {
+        self.corners.swap(0, 6);
+        self.corners.swap(1, 7);
+
+        self.edges.swap(0, 10);
+        self.edges.swap(4, 5);
     }
 }
 
