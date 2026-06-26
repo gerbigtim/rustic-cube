@@ -1,5 +1,6 @@
 mod camera;
 pub mod cube;
+pub mod input;
 pub mod scene;
 
 use bevy::prelude::*;
@@ -12,7 +13,8 @@ impl Plugin for RenderingPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(cube::CubeState {
             cube: Cube::solved(),
-        })
-        .add_systems(Startup, cube::create_scene);
+        });
+        app.add_systems(Startup, cube::create_scene);
+        app.add_systems(Update, input::handle_keyboard);
     }
 }

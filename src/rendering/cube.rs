@@ -224,7 +224,7 @@ pub fn create_scene(
 }
 
 #[derive(Component)]
-struct RubiksCubeRoot;
+pub struct RubiksCubeRoot;
 
 #[derive(Component)]
 struct CubeFace {
@@ -235,7 +235,7 @@ struct Facelet {
     idx: usize,
 }
 
-fn create_3d_cube(
+pub fn create_3d_cube(
     cube: &Cube,
     commands: &mut Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -326,5 +326,11 @@ fn facelet_transform(face_idx: usize, sticker_idx: usize) -> Transform {
                 .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2))
         }
         _ => Transform::default(),
+    }
+}
+
+pub fn despawn_cube(commands: &mut Commands, cube_query: &Query<Entity, With<RubiksCubeRoot>>) {
+    for cube_entity in cube_query.iter() {
+        commands.entity(cube_entity).despawn();
     }
 }

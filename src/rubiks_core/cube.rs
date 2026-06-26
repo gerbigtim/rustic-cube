@@ -240,6 +240,28 @@ impl CornerPiece {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CubeMove {
+    U,
+    UPrime,
+    U2,
+    D,
+    DPrime,
+    D2,
+    B,
+    BPrime,
+    B2,
+    F,
+    FPrime,
+    F2,
+    R,
+    RPrime,
+    R2,
+    L,
+    LPrime,
+    L2,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Cube {
     corners: [CornerPiece; 8],
@@ -400,7 +422,19 @@ impl Cube {
         self == &Cube::solved()
     }
 
-    pub fn move_u(&mut self) {
+    pub fn apply_move(&mut self, cube_move: CubeMove) {
+        match cube_move {
+            CubeMove::U => self.move_u(),
+            CubeMove::UPrime => self.move_u_prime(),
+            CubeMove::U2 => self.move_u2(),
+            CubeMove::D => self.move_d(),
+            CubeMove::DPrime => self.move_d_prime(),
+            CubeMove::D2 => self.move_d2(),
+            _ => (),
+        }
+    }
+
+    fn move_u(&mut self) {
         let tmp_corner = self.corners[0];
         self.corners[0] = self.corners[3];
         self.corners[3] = self.corners[2];
@@ -414,7 +448,7 @@ impl Cube {
         self.edges[1] = tmp_edge;
     }
 
-    pub fn move_u_prime(&mut self) {
+    fn move_u_prime(&mut self) {
         let tmp_corner = self.corners[0];
         self.corners[0] = self.corners[1];
         self.corners[1] = self.corners[2];
@@ -428,7 +462,7 @@ impl Cube {
         self.edges[3] = tmp_edge;
     }
 
-    pub fn move_u2(&mut self) {
+    fn move_u2(&mut self) {
         self.corners.swap(0, 2);
         self.corners.swap(1, 3);
 
@@ -436,7 +470,7 @@ impl Cube {
         self.edges.swap(1, 3);
     }
 
-    pub fn move_d(&mut self) {
+    fn move_d(&mut self) {
         let tmp_corner = self.corners[4];
         self.corners[4] = self.corners[7];
         self.corners[7] = self.corners[6];
@@ -450,7 +484,7 @@ impl Cube {
         self.edges[9] = tmp_edge;
     }
 
-    pub fn move_d_prime(&mut self) {
+    fn move_d_prime(&mut self) {
         let tmp_corner = self.corners[4];
         self.corners[4] = self.corners[5];
         self.corners[5] = self.corners[6];
@@ -464,7 +498,7 @@ impl Cube {
         self.edges[11] = tmp_edge;
     }
 
-    pub fn move_d2(&mut self) {
+    fn move_d2(&mut self) {
         self.corners.swap(4, 6);
         self.corners.swap(5, 7);
 
