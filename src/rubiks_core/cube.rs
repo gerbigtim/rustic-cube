@@ -449,6 +449,9 @@ impl Cube {
             CubeMove::R => self.move_r(),
             CubeMove::RPrime => self.move_r_prime(),
             CubeMove::R2 => self.move_r2(),
+            CubeMove::L => self.move_l(),
+            CubeMove::LPrime => self.move_l_prime(),
+            CubeMove::L2 => self.move_l2(),
             _ => (),
         }
     }
@@ -631,6 +634,42 @@ impl Cube {
 
         self.edges.swap(1, 9);
         self.edges.swap(5, 6);
+    }
+
+    fn move_l(&mut self) {
+        let mut tmp_corner = self.corners[0];
+        self.corners[0] = self.corners[7].with_twist(2);
+        self.corners[7] = self.corners[4].with_twist(1);
+        self.corners[4] = self.corners[3].with_twist(2);
+        self.corners[3] = tmp_corner.with_twist(1);
+
+        let tmp_edge = self.edges[3];
+        self.edges[3] = self.edges[4];
+        self.edges[4] = self.edges[11];
+        self.edges[11] = self.edges[7];
+        self.edges[7] = tmp_edge;
+    }
+
+    fn move_l_prime(&mut self) {
+        let mut tmp_corner = self.corners[0];
+        self.corners[0] = self.corners[3].with_twist(2);
+        self.corners[3] = self.corners[4].with_twist(1);
+        self.corners[4] = self.corners[7].with_twist(2);
+        self.corners[7] = tmp_corner.with_twist(1);
+
+        let tmp_edge = self.edges[3];
+        self.edges[3] = self.edges[7];
+        self.edges[7] = self.edges[11];
+        self.edges[11] = self.edges[4];
+        self.edges[4] = tmp_edge;
+    }
+
+    fn move_l2(&mut self) {
+        self.corners.swap(0, 4);
+        self.corners.swap(3, 7);
+
+        self.edges.swap(3, 11);
+        self.edges.swap(4, 7);
     }
 }
 
