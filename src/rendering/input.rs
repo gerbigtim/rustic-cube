@@ -16,7 +16,7 @@ pub fn handle_keyboard(
     let shift_pressed =
         keyboard.pressed(KeyCode::ShiftLeft) || keyboard.pressed(KeyCode::ShiftRight);
     let ctrl_pressed =
-        keyboard.pressed(KeyCode::ControlLeft) || keyboard.pressed(KeyCode::ControlLeft);
+        keyboard.pressed(KeyCode::ControlLeft) || keyboard.pressed(KeyCode::ControlRight);
 
     for key in keyboard.get_just_pressed() {
         match key {
@@ -48,6 +48,36 @@ pub fn handle_keyboard(
                     cube.apply_move(CubeMove::B2);
                 } else {
                     cube.apply_move(CubeMove::B);
+                }
+            }
+            KeyCode::KeyF => {
+                cube_changed = true;
+                if shift_pressed {
+                    cube.apply_move(CubeMove::FPrime);
+                } else if ctrl_pressed {
+                    cube.apply_move(CubeMove::F2);
+                } else {
+                    cube.apply_move(CubeMove::F);
+                }
+            }
+            KeyCode::KeyR => {
+                cube_changed = true;
+                if shift_pressed {
+                    cube.apply_move(CubeMove::RPrime);
+                } else if ctrl_pressed {
+                    cube.apply_move(CubeMove::R2);
+                } else {
+                    cube.apply_move(CubeMove::R);
+                }
+            }
+            KeyCode::KeyL => {
+                cube_changed = true;
+                if shift_pressed {
+                    cube.apply_move(CubeMove::LPrime);
+                } else if ctrl_pressed {
+                    cube.apply_move(CubeMove::L2);
+                } else {
+                    cube.apply_move(CubeMove::L);
                 }
             }
             _ => continue,
