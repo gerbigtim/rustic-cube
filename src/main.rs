@@ -1,5 +1,6 @@
 mod rendering;
 mod rubiks_core;
+mod solver;
 
 use bevy::prelude::*;
 

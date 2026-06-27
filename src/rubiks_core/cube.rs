@@ -10,7 +10,20 @@
 //! two directions. For a corner, orientation one is one clockwise twist and
 //! orientation two is two clockwise twists (equivalently, one counterclockwise
 //! twist), viewed from outside the cube looking directly at that corner.
-
+//!
+//! Piece Numbers:
+//!          | 0| 0| 1|
+//!          | 3| W| 1|
+//!          | 3| 2| 2|
+//! |  |  |  |  |  |  |  |  |  |
+//! |  |  |  | 7| G| 6|  |  |  |
+//! |  |  |  |  |  |  |  |  |  |
+//!          | 4| 8| 5|
+//!          |11| Y| 9|
+//!          | 7|10| 6|
+//!          |  |  |  |
+//!          | 4| B| 5|
+//!          |  |  |  |
 use rand::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -114,6 +127,12 @@ pub struct EdgePiece {
 }
 
 impl EdgePiece {
+    pub fn new(cubie: EdgeCubie, orientation: u8) -> Self {
+        Self {
+            cubie,
+            orientation: EdgeOrientation::new(orientation),
+        }
+    }
     pub fn cubie(&self) -> &EdgeCubie {
         &self.cubie
     }
@@ -232,6 +251,13 @@ pub struct CornerPiece {
 }
 
 impl CornerPiece {
+    pub fn new(cubie: CornerCubie, orientation: u8) -> Self {
+        Self {
+            cubie,
+            orientation: CornerOrientation(orientation),
+        }
+    }
+
     pub fn cubie(&self) -> &CornerCubie {
         &self.cubie
     }
