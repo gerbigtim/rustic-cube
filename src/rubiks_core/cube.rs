@@ -11,6 +11,8 @@
 //! orientation two is two clockwise twists (equivalently, one counterclockwise
 //! twist), viewed from outside the cube looking directly at that corner.
 
+use rand::prelude::*;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum CubeError {
     InvalidEdgeSlot { value: u8 },
@@ -272,6 +274,29 @@ pub enum CubeMove {
     L2,
 }
 
+impl CubeMove {
+    pub const ALL: [CubeMove; 18] = [
+        CubeMove::U,
+        CubeMove::UPrime,
+        CubeMove::U2,
+        CubeMove::D,
+        CubeMove::DPrime,
+        CubeMove::D2,
+        CubeMove::B,
+        CubeMove::BPrime,
+        CubeMove::B2,
+        CubeMove::F,
+        CubeMove::FPrime,
+        CubeMove::F2,
+        CubeMove::R,
+        CubeMove::RPrime,
+        CubeMove::R2,
+        CubeMove::L,
+        CubeMove::LPrime,
+        CubeMove::L2,
+    ];
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Cube {
     corners: [CornerPiece; 8],
@@ -377,6 +402,25 @@ impl Cube {
                     orientation: CornerOrientation::new(0),
                 },
             ],
+        }
+    }
+
+    pub fn make_solved(&mut self) {
+        *self = Self::solved();
+    }
+
+    pub fn generate_scramble(num_moves: usize) -> Vec<CubeMove> {
+        let mut rng = rand::rng();
+        let mut scramble_moves: Vec<CubeMove> = Vec::new();
+        for _ in 0..num_moves {
+            scramble_moves.push(*CubeMove::ALL.choose(&mut rng).unwrap());
+        }
+        scramble_moves
+    }
+
+    pub fn apply_scramble(&mut self, scramble_moves: Vec<CubeMove>) {
+        for scramble_move in scramble_moves {
+            self.apply_move(scramble_move);
         }
     }
 
