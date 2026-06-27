@@ -1,9 +1,9 @@
-use std::collections::VecDeque;
-
+use bevy::input::mouse::{MouseScrollUnit, MouseWheel};
 use bevy::prelude::*;
 
-use crate::rendering::animation::MoveAnimator;
+use crate::rendering::animation::{MoveAnimator, QueuedMove};
 use crate::rendering::cube::{CubeState, RubiksCubeRoot, create_3d_cube, despawn_cube};
+use crate::rendering::log::{MoveLog, MoveLogPanel, apply_and_log_move};
 use crate::rubiks_core::{Cube, CubeMove};
 
 pub fn handle_keyboard(
@@ -11,11 +11,11 @@ pub fn handle_keyboard(
     mut cube_state: ResMut<CubeState>,
     mut commands: Commands,
     mut animator: ResMut<MoveAnimator>,
+    mut move_log: ResMut<MoveLog>,
     cube_query: Query<Entity, With<RubiksCubeRoot>>,
     meshes: ResMut<Assets<Mesh>>,
     materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let cube = &mut cube_state.cube;
     let mut cube_changed = false;
     let shift_pressed =
         keyboard.pressed(KeyCode::ShiftLeft) || keyboard.pressed(KeyCode::ShiftRight);
@@ -31,11 +31,11 @@ pub fn handle_keyboard(
                 }
                 cube_changed = true;
                 if shift_pressed {
-                    cube.apply_move(CubeMove::UPrime);
+                    apply_and_log_move(CubeMove::UPrime, &mut move_log, &mut cube_state);
                 } else if ctrl_pressed {
-                    cube.apply_move(CubeMove::U2);
+                    apply_and_log_move(CubeMove::U2, &mut move_log, &mut cube_state);
                 } else {
-                    cube.apply_move(CubeMove::U);
+                    apply_and_log_move(CubeMove::U, &mut move_log, &mut cube_state);
                 }
             }
             KeyCode::KeyD => {
@@ -44,11 +44,11 @@ pub fn handle_keyboard(
                 }
                 cube_changed = true;
                 if shift_pressed {
-                    cube.apply_move(CubeMove::DPrime);
+                    apply_and_log_move(CubeMove::DPrime, &mut move_log, &mut cube_state);
                 } else if ctrl_pressed {
-                    cube.apply_move(CubeMove::D2);
+                    apply_and_log_move(CubeMove::D2, &mut move_log, &mut cube_state);
                 } else {
-                    cube.apply_move(CubeMove::D);
+                    apply_and_log_move(CubeMove::D, &mut move_log, &mut cube_state);
                 }
             }
             KeyCode::KeyB => {
@@ -57,11 +57,11 @@ pub fn handle_keyboard(
                 }
                 cube_changed = true;
                 if shift_pressed {
-                    cube.apply_move(CubeMove::BPrime);
+                    apply_and_log_move(CubeMove::BPrime, &mut move_log, &mut cube_state);
                 } else if ctrl_pressed {
-                    cube.apply_move(CubeMove::B2);
+                    apply_and_log_move(CubeMove::B2, &mut move_log, &mut cube_state);
                 } else {
-                    cube.apply_move(CubeMove::B);
+                    apply_and_log_move(CubeMove::B, &mut move_log, &mut cube_state);
                 }
             }
             KeyCode::KeyF => {
@@ -70,11 +70,11 @@ pub fn handle_keyboard(
                 }
                 cube_changed = true;
                 if shift_pressed {
-                    cube.apply_move(CubeMove::FPrime);
+                    apply_and_log_move(CubeMove::FPrime, &mut move_log, &mut cube_state);
                 } else if ctrl_pressed {
-                    cube.apply_move(CubeMove::F2);
+                    apply_and_log_move(CubeMove::F2, &mut move_log, &mut cube_state);
                 } else {
-                    cube.apply_move(CubeMove::F);
+                    apply_and_log_move(CubeMove::F, &mut move_log, &mut cube_state);
                 }
             }
             KeyCode::KeyR => {
@@ -83,11 +83,11 @@ pub fn handle_keyboard(
                 }
                 cube_changed = true;
                 if shift_pressed {
-                    cube.apply_move(CubeMove::RPrime);
+                    apply_and_log_move(CubeMove::RPrime, &mut move_log, &mut cube_state);
                 } else if ctrl_pressed {
-                    cube.apply_move(CubeMove::R2);
+                    apply_and_log_move(CubeMove::R2, &mut move_log, &mut cube_state);
                 } else {
-                    cube.apply_move(CubeMove::R);
+                    apply_and_log_move(CubeMove::R, &mut move_log, &mut cube_state);
                 }
             }
             KeyCode::KeyL => {
@@ -96,21 +96,23 @@ pub fn handle_keyboard(
                 }
                 cube_changed = true;
                 if shift_pressed {
-                    cube.apply_move(CubeMove::LPrime);
+                    apply_and_log_move(CubeMove::LPrime, &mut move_log, &mut cube_state);
                 } else if ctrl_pressed {
-                    cube.apply_move(CubeMove::L2);
+                    apply_and_log_move(CubeMove::L2, &mut move_log, &mut cube_state);
                 } else {
-                    cube.apply_move(CubeMove::L);
+                    apply_and_log_move(CubeMove::L, &mut move_log, &mut cube_state);
                 }
             }
             KeyCode::KeyS => {
                 if animation_busy {
                     continue;
                 }
-                cube.make_solved();
+                cube_state.cube.make_solved();
                 cube_changed = true;
-                let scramble_moves = Cube::generate_scramble(50);
-                animator.queue = VecDeque::from(scramble_moves);
+                for cube_move in Cube::generate_scramble(50) {
+                    let log_idx = move_log.push_move(cube_move);
+                    animator.queue.push_back(QueuedMove { log_idx, cube_move });
+                }
             }
             _ => continue,
         }
@@ -118,6 +120,25 @@ pub fn handle_keyboard(
 
     if cube_changed {
         despawn_cube(&mut commands, &cube_query);
-        create_3d_cube(cube, &mut commands, meshes, materials);
+        create_3d_cube(&cube_state.cube, &mut commands, meshes, materials);
+    }
+}
+
+pub fn scroll_move_log_ui(
+    mut mouse_wheel_events: MessageReader<MouseWheel>,
+    mut query: Query<&mut ScrollPosition, With<MoveLogPanel>>,
+) {
+    let Ok(mut scroll_position) = query.single_mut() else {
+        return;
+    };
+
+    for event in mouse_wheel_events.read() {
+        let mut delta = event.y;
+
+        if event.unit == MouseScrollUnit::Line {
+            delta *= 21.0;
+        }
+
+        scroll_position.y -= delta;
     }
 }
