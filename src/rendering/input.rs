@@ -1,15 +1,19 @@
+use std::collections::VecDeque;
+
 use bevy::prelude::*;
 
+use crate::rendering::animation::MoveAnimator;
 use crate::rendering::cube::{CubeState, RubiksCubeRoot, create_3d_cube, despawn_cube};
-use crate::rubiks_core::CubeMove;
+use crate::rubiks_core::{Cube, CubeMove};
 
 pub fn handle_keyboard(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut cube_state: ResMut<CubeState>,
     mut commands: Commands,
-    mut cube_query: Query<Entity, With<RubiksCubeRoot>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut animator: ResMut<MoveAnimator>,
+    cube_query: Query<Entity, With<RubiksCubeRoot>>,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let cube = &mut cube_state.cube;
     let mut cube_changed = false;
@@ -17,10 +21,14 @@ pub fn handle_keyboard(
         keyboard.pressed(KeyCode::ShiftLeft) || keyboard.pressed(KeyCode::ShiftRight);
     let ctrl_pressed =
         keyboard.pressed(KeyCode::ControlLeft) || keyboard.pressed(KeyCode::ControlRight);
+    let animation_busy = animator.active_move.is_some() || !animator.queue.is_empty();
 
     for key in keyboard.get_just_pressed() {
         match key {
             KeyCode::KeyU => {
+                if animation_busy {
+                    continue;
+                }
                 cube_changed = true;
                 if shift_pressed {
                     cube.apply_move(CubeMove::UPrime);
@@ -31,6 +39,9 @@ pub fn handle_keyboard(
                 }
             }
             KeyCode::KeyD => {
+                if animation_busy {
+                    continue;
+                }
                 cube_changed = true;
                 if shift_pressed {
                     cube.apply_move(CubeMove::DPrime);
@@ -41,6 +52,9 @@ pub fn handle_keyboard(
                 }
             }
             KeyCode::KeyB => {
+                if animation_busy {
+                    continue;
+                }
                 cube_changed = true;
                 if shift_pressed {
                     cube.apply_move(CubeMove::BPrime);
@@ -51,6 +65,9 @@ pub fn handle_keyboard(
                 }
             }
             KeyCode::KeyF => {
+                if animation_busy {
+                    continue;
+                }
                 cube_changed = true;
                 if shift_pressed {
                     cube.apply_move(CubeMove::FPrime);
@@ -61,6 +78,9 @@ pub fn handle_keyboard(
                 }
             }
             KeyCode::KeyR => {
+                if animation_busy {
+                    continue;
+                }
                 cube_changed = true;
                 if shift_pressed {
                     cube.apply_move(CubeMove::RPrime);
@@ -71,6 +91,9 @@ pub fn handle_keyboard(
                 }
             }
             KeyCode::KeyL => {
+                if animation_busy {
+                    continue;
+                }
                 cube_changed = true;
                 if shift_pressed {
                     cube.apply_move(CubeMove::LPrime);
@@ -79,6 +102,15 @@ pub fn handle_keyboard(
                 } else {
                     cube.apply_move(CubeMove::L);
                 }
+            }
+            KeyCode::KeyS => {
+                if animation_busy {
+                    continue;
+                }
+                cube.make_solved();
+                cube_changed = true;
+                let scramble_moves = Cube::generate_scramble(50);
+                animator.queue = VecDeque::from(scramble_moves);
             }
             _ => continue,
         }

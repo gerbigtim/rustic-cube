@@ -1,3 +1,4 @@
+pub mod animation;
 mod camera;
 pub mod cube;
 pub mod input;
@@ -14,7 +15,9 @@ impl Plugin for RenderingPlugin {
         app.insert_resource(cube::CubeState {
             cube: Cube::solved(),
         });
+        app.insert_resource(animation::MoveAnimator::default());
         app.add_systems(Startup, cube::create_scene);
         app.add_systems(Update, input::handle_keyboard);
+        app.add_systems(Update, animation::animate_moves);
     }
 }

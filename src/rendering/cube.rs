@@ -7,7 +7,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::rubiks_core::{Cube, StickerColor};
+use crate::rubiks_core::{Cube, CubeMove, StickerColor};
 
 pub struct DerivedStickers {
     stickers: [[StickerColor; 9]; 6],
