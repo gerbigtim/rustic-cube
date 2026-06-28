@@ -54,7 +54,7 @@ impl StickerColor {
     ];
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum EdgeCubie {
     WB,
     WR,
@@ -89,7 +89,7 @@ impl EdgeCubie {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct EdgeOrientation(u8);
 
 impl EdgeOrientation {
@@ -120,7 +120,7 @@ impl EdgeSlot {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct EdgePiece {
     cubie: EdgeCubie,
     orientation: EdgeOrientation,
@@ -153,7 +153,7 @@ impl EdgePiece {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum CornerCubie {
     WOB,
     WBR,
@@ -213,7 +213,7 @@ impl CornerCubie {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct CornerOrientation(u8);
 
 impl CornerOrientation {
@@ -244,7 +244,7 @@ impl CornerSlot {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct CornerPiece {
     cubie: CornerCubie,
     orientation: CornerOrientation,
@@ -254,7 +254,7 @@ impl CornerPiece {
     pub fn new(cubie: CornerCubie, orientation: u8) -> Self {
         Self {
             cubie,
-            orientation: CornerOrientation(orientation),
+            orientation: CornerOrientation::new(orientation),
         }
     }
 
@@ -323,7 +323,7 @@ impl CubeMove {
     ];
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Cube {
     corners: [CornerPiece; 8],
     edges: [EdgePiece; 12],
