@@ -27,7 +27,7 @@
 use rand::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum CubeError {
+pub enum CubeError {
     InvalidEdgeSlot { value: u8 },
     InvalidCornerSlot { value: u8 },
     InvalidCube,
@@ -330,7 +330,7 @@ pub struct Cube {
 }
 
 impl Cube {
-    fn new(corners: [CornerPiece; 8], edges: [EdgePiece; 12]) -> Result<Self, CubeError> {
+    pub fn new(corners: [CornerPiece; 8], edges: [EdgePiece; 12]) -> Result<Self, CubeError> {
         let cube = Self { corners, edges };
         if cube.edge_parity() == 0
             && cube.corner_parity() == 0
