@@ -1,8 +1,8 @@
 use crate::rubiks_core::Cube;
 use crate::solver::stages::*;
 
-pub fn score(cube: &Cube) -> usize {
-    let mut score: usize = 0;
+pub fn score(cube: &Cube) -> isize {
+    let mut score: isize = 0;
 
     score += 100 * pieces_solved(cube);
 
@@ -13,7 +13,7 @@ pub fn score(cube: &Cube) -> usize {
     score
 }
 
-fn edges_solved(cube: &Cube) -> usize {
+fn edges_solved(cube: &Cube) -> isize {
     let solved_cube = Cube::solved();
     let solved_edges = solved_cube.edges();
 
@@ -21,10 +21,10 @@ fn edges_solved(cube: &Cube) -> usize {
         .iter()
         .zip(solved_edges.iter())
         .filter(|(current, solved)| current == solved)
-        .count()
+        .count() as isize
 }
 
-fn corners_solved(cube: &Cube) -> usize {
+fn corners_solved(cube: &Cube) -> isize {
     let solved_cube = Cube::solved();
     let solved_corners = solved_cube.corners();
 
@@ -32,9 +32,9 @@ fn corners_solved(cube: &Cube) -> usize {
         .iter()
         .zip(solved_corners.iter())
         .filter(|(current, solved)| current == solved)
-        .count()
+        .count() as isize
 }
 
-fn pieces_solved(cube: &Cube) -> usize {
+fn pieces_solved(cube: &Cube) -> usisize {
     edges_solved(cube) + corners_solved(cube)
 }

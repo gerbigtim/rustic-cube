@@ -1,10 +1,20 @@
-use crate::rubiks_core::{Cube, CubeError, CubeMove};
+use bevy::platform::collections::HashSet;
+
+use crate::{
+    rubiks_core::{Cube, CubeError, CubeMove},
+    solver::scoring::score,
+};
 
 pub struct Solver {
     initial_cube: Cube,
     cube: Cube,
-    moves: [CubeMove; 18],
     solve_trace: Vec<CubeMove>,
+    visited: HashSet<Cube>,
+}
+
+struct CubeSolution {
+    solve_trace: Vec<CubeMove>,
+    score: isize,
 }
 
 impl Solver {
@@ -12,26 +22,71 @@ impl Solver {
         Self {
             initial_cube: initial_cube_ref.clone(),
             cube: Cube::solved(),
-            moves: CubeMove::ALL,
             solve_trace: Vec::new(),
+            visited: HashSet::from([initial_cube_ref.clone()]),
         }
     }
 
-    fn solve(&self) {}
+    fn solve(&mut self) {
+        let initial_node = SolverNode::new(
+            self.cube.clone(),
+            [true; 18],
+            self.solve_trace.clone(),
+            8,
+            score(&self.cube),
+        );
+
+        let mut best_solution = self.solve_recursive(initial_node);
+    }
+
+    fn solve_recursive(&mut self, node: SolverNode) -> CubeSolution {
+        let mut best_solution = CubeSolution {
+            solve_trace: node.solve_trace.clone(),
+            score: node.score,
+        };
+        if node.depth <= 0 {
+            return best_solution;
+        }
+        for cube_move in node.get_available_moves() {
+            let child = node.apply_move(cube_move);
+
+            if self.try_claim_cube(&child.cube) {
+                let child_solution = self.solve_recursive(child);
+                if child_solution.score > best_solution.score {
+                    best_solution = child_solution;
+                }
+            }
+        }
+        best_solution
+    }
+
+    fn try_claim_cube(&mut self, cube: &Cube) -> bool {
+        self.visited.insert(cube.clone())
+    }
 }
 
 struct SolverNode {
     cube: Cube,
     move_mask: [bool; 18],
     solve_trace: Vec<CubeMove>,
+    depth: usize,
+    score: isize,
 }
 
 impl SolverNode {
-    fn new(cube: Cube, move_mask: [bool; 18], solve_trace: Vec<CubeMove>) -> Self {
+    fn new(
+        cube: Cube,
+        move_mask: [bool; 18],
+        solve_trace: Vec<CubeMove>,
+        depth: usize,
+        score: isize,
+    ) -> Self {
         Self {
             cube,
             move_mask,
             solve_trace,
+            depth,
+            score,
         }
     }
 
@@ -86,5 +141,20 @@ impl SolverNode {
                 },
             )
             .collect()
+    }
+
+    fn apply_move(&self, cube_move: CubeMove) -> Self {
+        let mut cube = self.cube.clone();
+        cube.apply_move(cube_move);
+        let mut solve_trace = self.solve_trace.clone();
+        solve_trace.push(cube_move);
+        let score = score(&cube);
+        Self {
+            cube,
+            move_mask: self.move_mask,
+            solve_trace,
+            depth: self.depth - 1,
+            score,
+        }
     }
 }
