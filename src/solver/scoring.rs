@@ -4,10 +4,25 @@ use crate::solver::stages::*;
 pub fn score(cube: &Cube) -> isize {
     let mut score: isize = 0;
 
-    score += 100 * pieces_solved(cube);
+    score += 10 * pieces_solved(cube);
 
     if cross_solved(cube) {
         score += 10_000;
+    }
+    if bo_f2l_solved(cube) {
+        score += 100
+    }
+    if br_f2l_solved(cube) {
+        score += 100
+    }
+    if gr_f2l_solved(cube) {
+        score += 100
+    }
+    if go_f2l_solved(cube) {
+        score += 100
+    }
+    if f2l_solved(cube) {
+        score += 1000
     }
 
     score
@@ -35,6 +50,6 @@ fn corners_solved(cube: &Cube) -> isize {
         .count() as isize
 }
 
-fn pieces_solved(cube: &Cube) -> usisize {
+fn pieces_solved(cube: &Cube) -> isize {
     edges_solved(cube) + corners_solved(cube)
 }

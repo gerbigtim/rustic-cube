@@ -5,6 +5,7 @@ use crate::rendering::animation::{MoveAnimator, QueuedMove};
 use crate::rendering::cube::{CubeState, RubiksCubeRoot, create_3d_cube, despawn_cube};
 use crate::rendering::log::{MoveLog, MoveLogPanel, apply_and_log_move};
 use crate::rubiks_core::{Cube, CubeMove};
+use crate::solver::solver::Solver;
 
 pub fn handle_keyboard(
     keyboard: Res<ButtonInput<KeyCode>>,
@@ -110,6 +111,17 @@ pub fn handle_keyboard(
                 cube_state.cube.make_solved();
                 cube_changed = true;
                 for cube_move in Cube::generate_scramble(50) {
+                    let log_idx = move_log.push_move(cube_move);
+                    animator.queue.push_back(QueuedMove { log_idx, cube_move });
+                }
+            }
+            KeyCode::KeyM => {
+                if animation_busy {
+                    continue;
+                }
+                let mut solver = Solver::new(&cube_state.cube);
+                let solve_trace = solver.solve();
+                for cube_move in solve_trace {
                     let log_idx = move_log.push_move(cube_move);
                     animator.queue.push_back(QueuedMove { log_idx, cube_move });
                 }

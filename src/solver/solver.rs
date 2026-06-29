@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+
 use bevy::platform::collections::HashSet;
 
 use crate::{
@@ -8,7 +10,6 @@ use crate::{
 const RECURSION_DEPTH: usize = 5;
 
 pub struct Solver {
-    initial_cube: Cube,
     cube: Cube,
     solve_trace: Vec<CubeMove>,
     visited: HashSet<Cube>,
@@ -22,18 +23,17 @@ struct CubeSolution {
 impl Solver {
     pub fn new(initial_cube_ref: &Cube) -> Self {
         Self {
-            initial_cube: initial_cube_ref.clone(),
-            cube: Cube::solved(),
+            cube: initial_cube_ref.clone(),
             solve_trace: Vec::new(),
             visited: HashSet::from([initial_cube_ref.clone()]),
         }
     }
 
-    fn solve(&mut self) -> Vec<CubeMove> {
+    pub fn solve(&mut self) -> Vec<CubeMove> {
         let mut node = SolverNode::new(
             self.cube.clone(),
             [true; 18],
-            self.solve_trace.clone(),
+            Vec::new(),
             RECURSION_DEPTH,
             score(&self.cube),
         );
@@ -43,18 +43,21 @@ impl Solver {
             score: node.score,
         };
 
+        println!("solver:");
+        println!("node:");
+
         let mut found_improvement = true;
 
         while found_improvement {
             found_improvement = false;
+            node.reset_trace();
             let found_solution = self.solve_recursive(&node);
             if found_solution.score > best_solution.score {
                 found_improvement = true;
                 best_solution = found_solution;
                 self.solve_trace
                     .append(&mut best_solution.solve_trace.clone());
-                node.apply_moves(best_solution.solve_trace);
-                node.reset_trace();
+                node.apply_moves(&best_solution.solve_trace);
             }
         }
         self.solve_trace.clone()
@@ -65,7 +68,8 @@ impl Solver {
             solve_trace: node.local_trace.clone(),
             score: node.score,
         };
-        if node.depth <= 0 {
+        print_progress(&self.solve_trace, &node.local_trace);
+        if node.depth == 0 {
             return best_solution;
         }
         for cube_move in node.get_available_moves() {
@@ -181,19 +185,16 @@ impl SolverNode {
         child
     }
 
-    fn apply_moves(&mut self, cube_moves: Vec<CubeMove>) {
-        self.cube.apply_moves(cube_moves.clone());
+    fn apply_moves(&mut self, cube_moves: &[CubeMove]) {
+        self.cube.apply_moves(cube_moves.to_vec());
         self.score = score(&self.cube);
         self.move_mask = [true; 18];
-        self.local_trace.append(&mut cube_moves.clone());
+        self.local_trace.append(&mut cube_moves.to_vec());
         let last_moves = last_up_to_two(&self.local_trace);
-        match last_moves {
-            Some(last_moves) => {
-                for cube_move in last_moves {
-                    self.block_and_unblock_moves(cube_move);
-                }
+        if let Some(last_moves) = last_moves {
+            for cube_move in last_moves {
+                self.block_and_unblock_moves(cube_move);
             }
-            None => (),
         }
     }
 
@@ -212,4 +213,18 @@ fn last_up_to_two(items: &[CubeMove]) -> Option<Vec<CubeMove>> {
         1 => Some(vec![items[0]]),
         len => Some(items[len - 2..].to_vec()),
     }
+}
+
+fn print_progress(solver_trace: &[CubeMove], node_trace: &[CubeMove]) {
+    let mut stdout = io::stdout();
+
+    write!(stdout, "\x1B[2A").unwrap();
+
+    write!(stdout, "\x1B[2K").unwrap();
+    writeln!(stdout, "solver: {:?}", solver_trace);
+
+    write!(stdout, "\x1B[2K").unwrap();
+    writeln!(stdout, "node: {:?}", node_trace);
+
+    stdout.flush().unwrap();
 }
