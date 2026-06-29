@@ -3,11 +3,11 @@ use std::io::{self, Write};
 use bevy::platform::collections::HashSet;
 
 use crate::{
-    rubiks_core::{Cube, CubeError, CubeMove},
+    rubiks_core::{Cube, CubeMove},
     solver::scoring::score,
 };
 
-const RECURSION_DEPTH: usize = 6;
+const RECURSION_DEPTH: usize = 7;
 
 pub struct Solver {
     cube: Cube,
@@ -43,12 +43,10 @@ impl Solver {
             score: node.score,
         };
 
-        println!("solver:");
-        println!("node:");
-
         let mut found_improvement = true;
 
         while found_improvement {
+            println!("solve trace: {:?}", self.solve_trace);
             found_improvement = false;
             node.reset_trace();
             let found_solution = self.solve_recursive(&node);
@@ -60,6 +58,7 @@ impl Solver {
                 node.apply_moves(&best_solution.solve_trace);
             }
         }
+        println!("best found solution: {:?}", self.solve_trace);
         self.solve_trace.clone()
     }
 
@@ -68,7 +67,6 @@ impl Solver {
             solve_trace: node.local_trace.clone(),
             score: node.score,
         };
-        print_progress(&self.solve_trace, &node.local_trace);
         if node.depth == 0 {
             return best_solution;
         }
@@ -156,16 +154,15 @@ impl SolverNode {
         }
     }
 
-    fn get_available_moves(&self) -> Vec<CubeMove> {
+    fn get_available_moves(&self) -> impl Iterator<Item = CubeMove> + '_ {
         CubeMove::ALL
             .into_iter()
-            .zip(self.move_mask)
+            .zip(self.move_mask.iter())
             .filter_map(
                 |(cube_move, is_available)| {
-                    if is_available { Some(cube_move) } else { None }
+                    if *is_available { Some(cube_move) } else { None }
                 },
             )
-            .collect()
     }
 
     fn child_from_move(&self, cube_move: CubeMove) -> Self {
