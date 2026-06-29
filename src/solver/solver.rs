@@ -5,6 +5,8 @@ use crate::{
     solver::scoring::score,
 };
 
+const RECURSION_DEPTH: usize = 5;
+
 pub struct Solver {
     initial_cube: Cube,
     cube: Cube,
@@ -27,31 +29,50 @@ impl Solver {
         }
     }
 
-    fn solve(&mut self) {
-        let initial_node = SolverNode::new(
+    fn solve(&mut self) -> Vec<CubeMove> {
+        let mut node = SolverNode::new(
             self.cube.clone(),
             [true; 18],
             self.solve_trace.clone(),
-            8,
+            RECURSION_DEPTH,
             score(&self.cube),
         );
 
-        let mut best_solution = self.solve_recursive(initial_node);
+        let mut best_solution = CubeSolution {
+            solve_trace: node.local_trace.clone(),
+            score: node.score,
+        };
+
+        let mut found_improvement = true;
+
+        while found_improvement {
+            found_improvement = false;
+            let found_solution = self.solve_recursive(&node);
+            if found_solution.score > best_solution.score {
+                found_improvement = true;
+                best_solution = found_solution;
+                self.solve_trace
+                    .append(&mut best_solution.solve_trace.clone());
+                node.apply_moves(best_solution.solve_trace);
+                node.reset_trace();
+            }
+        }
+        self.solve_trace.clone()
     }
 
-    fn solve_recursive(&mut self, node: SolverNode) -> CubeSolution {
+    fn solve_recursive(&mut self, node: &SolverNode) -> CubeSolution {
         let mut best_solution = CubeSolution {
-            solve_trace: node.solve_trace.clone(),
+            solve_trace: node.local_trace.clone(),
             score: node.score,
         };
         if node.depth <= 0 {
             return best_solution;
         }
         for cube_move in node.get_available_moves() {
-            let child = node.apply_move(cube_move);
+            let child = node.child_from_move(cube_move);
 
             if self.try_claim_cube(&child.cube) {
-                let child_solution = self.solve_recursive(child);
+                let child_solution = self.solve_recursive(&child);
                 if child_solution.score > best_solution.score {
                     best_solution = child_solution;
                 }
@@ -68,7 +89,7 @@ impl Solver {
 struct SolverNode {
     cube: Cube,
     move_mask: [bool; 18],
-    solve_trace: Vec<CubeMove>,
+    local_trace: Vec<CubeMove>,
     depth: usize,
     score: isize,
 }
@@ -77,14 +98,14 @@ impl SolverNode {
     fn new(
         cube: Cube,
         move_mask: [bool; 18],
-        solve_trace: Vec<CubeMove>,
+        local_trace: Vec<CubeMove>,
         depth: usize,
         score: isize,
     ) -> Self {
         Self {
             cube,
             move_mask,
-            solve_trace,
+            local_trace,
             depth,
             score,
         }
@@ -143,18 +164,52 @@ impl SolverNode {
             .collect()
     }
 
-    fn apply_move(&self, cube_move: CubeMove) -> Self {
+    fn child_from_move(&self, cube_move: CubeMove) -> Self {
         let mut cube = self.cube.clone();
         cube.apply_move(cube_move);
-        let mut solve_trace = self.solve_trace.clone();
-        solve_trace.push(cube_move);
+        let mut local_trace = self.local_trace.clone();
+        local_trace.push(cube_move);
         let score = score(&cube);
-        Self {
+        let mut child = Self {
             cube,
             move_mask: self.move_mask,
-            solve_trace,
+            local_trace,
             depth: self.depth - 1,
             score,
+        };
+        child.block_and_unblock_moves(cube_move);
+        child
+    }
+
+    fn apply_moves(&mut self, cube_moves: Vec<CubeMove>) {
+        self.cube.apply_moves(cube_moves.clone());
+        self.score = score(&self.cube);
+        self.move_mask = [true; 18];
+        self.local_trace.append(&mut cube_moves.clone());
+        let last_moves = last_up_to_two(&self.local_trace);
+        match last_moves {
+            Some(last_moves) => {
+                for cube_move in last_moves {
+                    self.block_and_unblock_moves(cube_move);
+                }
+            }
+            None => (),
         }
+    }
+
+    fn reset_trace(&mut self) {
+        self.local_trace = Vec::new();
+    }
+
+    fn reset_depth(&mut self, depth: usize) {
+        self.depth = depth;
+    }
+}
+
+fn last_up_to_two(items: &[CubeMove]) -> Option<Vec<CubeMove>> {
+    match items.len() {
+        0 => None,
+        1 => Some(vec![items[0]]),
+        len => Some(items[len - 2..].to_vec()),
     }
 }

@@ -526,6 +526,12 @@ impl Cube {
         }
     }
 
+    pub fn apply_moves(&mut self, cube_moves: Vec<CubeMove>) {
+        for cube_move in cube_moves {
+            self.apply_move(cube_move);
+        }
+    }
+
     fn move_u(&mut self) {
         let tmp_corner = self.corners[0];
         self.corners[0] = self.corners[3];
