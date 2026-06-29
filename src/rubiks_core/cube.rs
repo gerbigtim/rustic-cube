@@ -99,6 +99,9 @@ impl EdgeOrientation {
     pub fn as_u8(self) -> u8 {
         self.0
     }
+    pub fn is(self, orientation: u8) -> bool {
+        self.0 == orientation
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -222,6 +225,9 @@ impl CornerOrientation {
     }
     pub fn as_u8(self) -> u8 {
         self.0
+    }
+    pub fn is(self, orientation: u8) -> bool {
+        self.0 == orientation
     }
 }
 

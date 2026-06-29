@@ -7,22 +7,34 @@ pub fn score(cube: &Cube) -> isize {
     score += 10 * pieces_solved(cube);
 
     if cross_solved(cube) {
-        score += 10_000;
+        score += 100_000;
     }
     if bo_f2l_solved(cube) {
-        score += 100
+        score += 1000
     }
     if br_f2l_solved(cube) {
-        score += 100
+        score += 1000
     }
     if gr_f2l_solved(cube) {
-        score += 100
+        score += 1000
     }
     if go_f2l_solved(cube) {
-        score += 100
+        score += 1000
     }
     if f2l_solved(cube) {
+        score += 10_000
+    }
+    if oll_edges_solved(cube) {
+        score += 5000
+    }
+    if oll_corners_solved(cube) {
         score += 1000
+    }
+    if pll_edges_solved(cube) {
+        score += 500
+    }
+    if pll_corners_solved(cube) {
+        score += 100
     }
 
     score

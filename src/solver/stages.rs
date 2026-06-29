@@ -31,6 +31,34 @@ pub fn f2l_solved(cube: &Cube) -> bool {
     bo_f2l_solved(cube) && br_f2l_solved(cube) && gr_f2l_solved(cube) && go_f2l_solved(cube)
 }
 
+pub fn oll_edges_solved(cube: &Cube) -> bool {
+    cube.edges()[8].orientation().is(0)
+        && cube.edges()[9].orientation().is(0)
+        && cube.edges()[10].orientation().is(0)
+        && cube.edges()[11].orientation().is(0)
+}
+
+pub fn oll_corners_solved(cube: &Cube) -> bool {
+    cube.corners()[4].orientation().is(0)
+        && cube.corners()[5].orientation().is(0)
+        && cube.corners()[6].orientation().is(0)
+        && cube.corners()[7].orientation().is(0)
+}
+
+pub fn pll_edges_solved(cube: &Cube) -> bool {
+    cube.edges()[8] == EdgePiece::new(EdgeCubie::YG, 0)
+        && cube.edges()[9] == EdgePiece::new(EdgeCubie::YR, 0)
+        && cube.edges()[10] == EdgePiece::new(EdgeCubie::YB, 0)
+        && cube.edges()[11] == EdgePiece::new(EdgeCubie::YO, 0)
+}
+
+pub fn pll_corners_solved(cube: &Cube) -> bool {
+    cube.corners()[4] == CornerPiece::new(CornerCubie::YOG, 0)
+        && cube.corners()[5] == CornerPiece::new(CornerCubie::YGR, 0)
+        && cube.corners()[6] == CornerPiece::new(CornerCubie::YRB, 0)
+        && cube.corners()[7] == CornerPiece::new(CornerCubie::YBO, 0)
+}
+
 #[cfg(test)]
 mod test {
     use crate::rubiks_core::Cube;
