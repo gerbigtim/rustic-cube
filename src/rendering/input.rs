@@ -110,7 +110,14 @@ pub fn handle_keyboard(
                 }
                 cube_state.cube.make_solved();
                 cube_changed = true;
-                for cube_move in Cube::generate_scramble(50) {
+                let mut scramble_moves = Cube::generate_scramble(50);
+                if shift_pressed {
+                    cube_state.cube.apply_moves(scramble_moves.clone());
+                    move_log.moves.append(&mut scramble_moves);
+                    move_log.current_idx = Some(move_log.moves.len() - 1);
+                    continue;
+                }
+                for cube_move in scramble_moves {
                     let log_idx = move_log.push_move(cube_move);
                     animator.queue.push_back(QueuedMove { log_idx, cube_move });
                 }
