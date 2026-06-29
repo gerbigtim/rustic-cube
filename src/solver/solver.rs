@@ -44,16 +44,12 @@ impl Solver {
         };
 
         let mut found_improvement = true;
-        let mut nodes_visited = 0;
 
         while found_improvement {
-            println!(
-                "solve trace: {:?} \nnodes visited: {nodes_visited}",
-                self.solve_trace
-            );
+            println!("solve trace: {:?}", self.solve_trace);
             found_improvement = false;
             node.reset_trace();
-            let found_solution = self.solve_recursive(&node, &mut nodes_visited);
+            let found_solution = self.solve_recursive(&node);
             if found_solution.score > best_solution.score {
                 found_improvement = true;
                 best_solution = found_solution;
@@ -62,15 +58,11 @@ impl Solver {
                 node.apply_moves(&best_solution.solve_trace);
             }
         }
-        println!(
-            "+++\nbest found solution: {:?} \nnodes visited: {nodes_visited}",
-            self.solve_trace
-        );
+        println!("+++\nbest found solution: {:?}", self.solve_trace);
         self.solve_trace.clone()
     }
 
-    fn solve_recursive(&mut self, node: &SolverNode, nodes_visited: &mut usize) -> CubeSolution {
-        *nodes_visited += 1;
+    fn solve_recursive(&mut self, node: &SolverNode) -> CubeSolution {
         let mut best_solution = CubeSolution {
             solve_trace: node.local_trace.clone(),
             score: node.score,
@@ -80,7 +72,7 @@ impl Solver {
         }
         for cube_move in node.get_available_moves() {
             let child = node.child_from_move(cube_move);
-            let child_solution = self.solve_recursive(&child, nodes_visited);
+            let child_solution = self.solve_recursive(&child);
             if child_solution.score > best_solution.score {
                 best_solution = child_solution;
             }
