@@ -7,7 +7,7 @@ use crate::{
     solver::scoring::score,
 };
 
-const RECURSION_DEPTH: usize = 5;
+const RECURSION_DEPTH: usize = 6;
 
 pub struct Solver {
     cube: Cube,
